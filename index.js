@@ -10,12 +10,36 @@ const PORT = 3500;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// app.get('/', (req, res) => {
+app.get('/', (req, res) => {
+  async function controlFlow() {
+    try {
+      const items = await sql.GetAllInventory();
 
-// });
+      const inventory = [];
+      for (let i = 0; i < items.length; i += 1) {
+        inventory.push({
+          id: items[i].dataValues.name,
+          currentInventory: items[i].dataValues.current_inventory,
+          defaultInventory: items[i].dataValues.default_inventory,
+        });
+      }
+      res.end(JSON.stringify({
+        result: inventory,
+      }));
+    } catch (err) {
+      res.end(JSON.stringify({
+        result: false,
+        message: 'Error: Get Inventory Error',
+        error: err.toString(),
+      }));
+    }
+  }
+
+  controlFlow();
+});
 app.post('/', (req, res) => {
   const { name, number } = req.body;
-  Console.log(name, number);
+
   async function controlFlow() {
     try {
       await sql.CreateInventory(name, number);
@@ -26,12 +50,22 @@ app.post('/', (req, res) => {
     } catch (err) {
       res.end(JSON.stringify({
         result: false,
-        message: err.toString(),
-        error: 'Error: Create New Inventory Error',
+        message: 'Error: Create New Inventory Error',
+        error: err.toString(),
       }));
     }
   }
-  controlFlow();
+
+  if (!name || !number) {
+    res.end(
+      JSON.stringify({
+        result: false,
+        message: 'Please fill name and number',
+      }),
+    );
+  } else {
+    controlFlow();
+  }
 });
 
 app.listen(PORT, () => {
