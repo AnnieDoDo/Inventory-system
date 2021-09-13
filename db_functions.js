@@ -15,7 +15,7 @@ sequelize.authenticate()
     Console.error('Unable to connect to the database:', err);
   });
 
-const Inventory = sequelize.define('iventory', {
+const Inventory = sequelize.define('inventory', {
   id: {
     type: DataTypes.TEXT,
     allowNull: false,
@@ -51,13 +51,14 @@ const Inventory = sequelize.define('iventory', {
 });
 
 module.exports = {
-  CreateInventory(name, defaultInventory) {
+  CreateInventory(name, number) {
     const time = Date.now();
     return Inventory.upsert({
       id: uuid.v4(),
       name,
       current_inventory: 0,
-      default_inventory: defaultInventory,
+      default_inventory: number,
+      preorder: 0,
       created_at: time,
       updated_at: time,
     });
