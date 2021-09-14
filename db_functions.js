@@ -1,4 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
+
+const { Op } = Sequelize;
 const uuid = require('uuid');
 const Console = require('console');
 
@@ -56,17 +58,27 @@ module.exports = {
     return Inventory.upsert({
       id: uuid.v4(),
       name,
-      current_inventory: 0,
+      current_inventory: number,
       default_inventory: number,
       preorder: 0,
       created_at: time,
       updated_at: time,
     });
   },
-  GetAllInventory() {
+  GetInventory() {
     return Inventory.findAll({
       attributes: ['name', 'current_inventory', 'default_inventory'],
     });
   },
-
+  UpdateInventory(n) {
+    const time = Date.now();
+    return Inventory.update({
+      current_inventory: sequelize.literal('current_inventory - 1'),
+      updated_at: time,
+    }, {
+      where: { name: n, current_inventory: { [Op.gt]: 0 } },
+      returning: false,
+      plain: true,
+    });
+  },
 };

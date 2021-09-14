@@ -10,10 +10,42 @@ const PORT = 3500;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.put('/', (req, res) => {
+  const { name, preorder } = req.body;
+  let number = 0;
+  if (preorder) {
+    number = preorder;
+  }
+
+  async function controlFlow() {
+    try {
+      const items = await sql.UpdateInventory(name, number);
+      if (items[0] === 0) {
+        res.end(JSON.stringify({
+          result: true,
+          message: 'Success: No rows update',
+        }));
+      } else {
+        res.end(JSON.stringify({
+          result: true,
+          message: 'Success',
+        }));
+      }
+    } catch (err) {
+      res.end(JSON.stringify({
+        result: false,
+        message: 'Error: Update Inventory Error',
+        error: err.toString(),
+      }));
+    }
+  }
+  controlFlow();
+});
+
 app.get('/', (req, res) => {
   async function controlFlow() {
     try {
-      const items = await sql.GetAllInventory();
+      const items = await sql.GetInventory();
 
       const inventory = [];
       for (let i = 0; i < items.length; i += 1) {
@@ -37,6 +69,7 @@ app.get('/', (req, res) => {
 
   controlFlow();
 });
+
 app.post('/', (req, res) => {
   const { name, number } = req.body;
 
