@@ -94,4 +94,15 @@ module.exports = {
       plain: true,
     });
   },
+  UpdateInventoryToDefault() {
+    const time = Date.now();
+    return Inventory.update({
+      current_inventory: sequelize.literal('default_inventory'),
+      updated_at: time,
+    }, {
+      where: { current_inventory: { [Op.lt]: sequelize.literal('default_inventory') } },
+      returning: false,
+      plain: true,
+    });
+  },
 };

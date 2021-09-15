@@ -1,5 +1,6 @@
 const express = require('express');
 // const https = require('https');
+const cron = require('node-cron');
 const Console = require('console');
 const sql = require('./db_functions');
 
@@ -9,6 +10,18 @@ const PORT = 3500;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const task = cron.schedule('0 0 0 * * *', () => {
+  async function controlFlow() {
+    try {
+      await sql.UpdateInventoryToDefault();
+    } catch (err) {
+      Console.log(err);
+    }
+  }
+  controlFlow();
+});
+task.start();
 
 app.put('/', (req, res) => {
   const { name, preorder } = req.body;
@@ -48,7 +61,6 @@ app.get('/', (req, res) => {
   async function controlFlow() {
     try {
       const items = await sql.GetInventory();
-
       const inventory = [];
       for (let i = 0; i < items.length; i += 1) {
         inventory.push({
