@@ -12,14 +12,16 @@ app.use(express.urlencoded({ extended: true }));
 
 app.put('/', (req, res) => {
   const { name, preorder } = req.body;
-  let number = 0;
-  if (preorder) {
-    number = preorder;
-  }
 
   async function controlFlow() {
     try {
-      const items = await sql.UpdateInventory(name, number);
+      let items = Promise;
+      if (Number.isInteger(preorder)) {
+        items = await sql.UpdatePreOrderByName(name, preorder);
+      } else {
+        items = await sql.UpdateCurrentInventoryByName(name);
+      }
+
       if (items[0] === 0) {
         res.end(JSON.stringify({
           result: true,

@@ -70,13 +70,26 @@ module.exports = {
       attributes: ['name', 'current_inventory', 'default_inventory'],
     });
   },
-  UpdateInventory(n) {
+  UpdateCurrentInventoryByName(n) {
     const time = Date.now();
     return Inventory.update({
       current_inventory: sequelize.literal('current_inventory - 1'),
       updated_at: time,
     }, {
-      where: { name: n, current_inventory: { [Op.gt]: 0 } },
+      where: { name: n, current_inventory: { [Op.gt]: sequelize.literal('preorder + 1') } },
+      // This 1 means current_inventory.
+      returning: false,
+      plain: true,
+    });
+  },
+  UpdatePreOrderByName(n, number) {
+    const time = Date.now();
+    return Inventory.update({
+      preorder: sequelize.literal(`preorder + ${number.toString()}`),
+      updated_at: time,
+    }, {
+      where: { name: n, current_inventory: { [Op.gt]: sequelize.literal(`preorder + ${number.toString()}`) } },
+      // This "1" means preoder.
       returning: false,
       plain: true,
     });
