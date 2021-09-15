@@ -1,12 +1,10 @@
 const express = require('express');
-// const https = require('https');
 const cron = require('node-cron');
 const Console = require('console');
 const sql = require('./db_functions');
 
 const app = express();
 const PORT = 3500;
-// const HOST = 'http://localhost:';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
